@@ -3,7 +3,6 @@ package com.arml.realmd.auth
 import com.arml.realmd.util.hexStringToByteArray
 import com.arml.realmd.util.toHexadecimalString
 import com.arml.realmd.util.toReversedByteArray
-import com.google.common.hash.Hashing
 import java.math.BigInteger
 import java.security.MessageDigest
 import java.util.concurrent.ThreadLocalRandom
@@ -55,7 +54,7 @@ private fun calculateSrp6Internal(accountDto: AccountDto, b: BigInteger? = null)
   val bToUse = b ?: BigInteger(19 * 8, ThreadLocalRandom.current())
   val gmod = g.modPow(bToUse, nBigInteger)
   check(gmod.toByteArray().size >= 32) { "gmod must have a bytarray size >= 32" }
-  val B = ((vBigInt * BigInteger.valueOf(3L)) + gmod) % nBigInteger
+  val upperB = ((vBigInt * BigInteger.valueOf(3L)) + gmod) % nBigInteger
 
-  return Srp6Values(B, bToUse, g, nBigInteger, vBigInt, s, x)
+  return Srp6Values(upperB, bToUse, g, nBigInteger, vBigInt, s, x)
 }

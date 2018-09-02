@@ -1,6 +1,5 @@
 package com.arml.realmd.auth
 
-import com.arml.realmd.util.stripLeadingZeros
 import com.arml.realmd.util.toHexadecimalString
 import org.assertj.core.api.Assertions.assertThat
 import org.joda.time.DateTime

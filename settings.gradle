@@ -1,0 +1,10 @@
+pluginManagement {
+  repositories {
+    gradlePluginPortal()
+    maven {
+      url = uri("http://dl.bintray.com/kotlin/kotlin-eap")
+    }
+  }
+}
+
+rootProject.name = 'realmd'

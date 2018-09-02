@@ -20,13 +20,16 @@ repositories {
 }
 
 val kotlinVersion: String by extra
+val exposedVersion: String by extra
+val mariaDbVersion: String by extra
+val guavaVersion: String by extra
 
 dependencies {
   compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
   compile("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
-  compile("org.jetbrains.exposed:exposed:0.10.4")
-  compile("org.mariadb.jdbc:mariadb-java-client:2.2.6")
-  compile("com.google.guava:guava:26.0-jre")
+  compile("org.jetbrains.exposed:exposed:$exposedVersion")
+  compile("org.mariadb.jdbc:mariadb-java-client:$mariaDbVersion")
+  compile("com.google.guava:guava:$guavaVersion")
 
   val jUnitVersion: String  by extra
   val assertJVersion: String by extra

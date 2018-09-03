@@ -19,7 +19,7 @@ data class Srp6Values(
   val B: BigInteger,
   val lowerB: BigInteger,
   val g: BigInteger,
-  val N: BigInteger,
+  val N: BigInteger = nBigInteger,
   val v: BigInteger,
   val s: BigInteger,
   val x: BigInteger

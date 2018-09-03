@@ -4,7 +4,6 @@ import com.arml.realmd.CommandHandler
 import com.arml.realmd.auth.Srp6Values
 import com.arml.realmd.networking.ClientHandler
 import com.arml.realmd.util.sha1
-import com.arml.realmd.util.toHexadecimalString
 import com.arml.realmd.util.toReversedByteArray
 import com.google.common.annotations.VisibleForTesting
 import java.math.BigInteger
@@ -18,11 +17,8 @@ object LogonProofHandler : CommandHandler {
       val a = BigInteger(proofParams.a, 16)
       val srp6Values = clientHandler.srp6Values
       srp6Values?.let { srp6 ->
-        val m = calculateM(a, srp6, clientHandler)
-        println(proofParams.m1 == m?.toHexadecimalString())
+        clientHandler.login?.let { calculateM(a, srp6, it) }
         TODO("handle")
-        // 3FDFBC38020BB08F78E7C0F39198E2DB2563262D
-        // A963D764121AB4230CB5C0D66C84B805619E71AD
       }
     }
   }
@@ -31,11 +27,15 @@ object LogonProofHandler : CommandHandler {
   internal fun calculateM(
     a: BigInteger,
     srp6: Srp6Values,
-    clientHandler: ClientHandler
-  ): BigInteger? {
-    val aBSha1 = sha1(a, srp6.B)
-    val u = BigInteger(aBSha1.toHexadecimalString(), 16)
+    login: String
+  ): BigInteger {
+    val aBSha1 = sha1 {
+      update(a.toReversedByteArray())
+      update(srp6.B.toReversedByteArray())
+    }
+    val u = BigInteger(1, aBSha1.reversedArray())
     val s = (a * (srp6.v.modPow(u, srp6.N))).modPow(srp6.lowerB, srp6.N)
+
     val t = s.toReversedByteArray(32)
     val t1 = t.filterIndexed { index, _ -> index % 2 == 0 }.toByteArray()
     val t1Sha1 = t1.sha1()
@@ -45,16 +45,23 @@ object LogonProofHandler : CommandHandler {
     }
     val t1Sha1Two = t1.sha1()
     vk2(vk, t1Sha1Two)
-    val k = BigInteger(vk.reversedArray().toHexadecimalString(), 16)
-    val hash = sha1(srp6.N)
-    val gHash = sha1(srp6.g)
+    val k = BigInteger(1, vk.reversedArray())
+    val nSha1 = sha1(srp6.N)
+    val gSha1 = sha1(srp6.g)
+    val nSha1XoredByGSha1 = ByteArray(20)
     for (i in 0..19) {
-      hash[i] = hash[i] xor gHash[i]
+      nSha1XoredByGSha1[i] = nSha1[i] xor gSha1[i]
     }
-    val t3 = BigInteger(hash.toHexadecimalString(), 16)
-    val t4 = clientHandler.login?.toByteArray()?.sha1()?.toHexadecimalString()
-      ?.let { BigInteger(it, 16) }
-    return t4?.let { BigInteger(sha1(t3, t4, srp6.s, a, srp6.B, k).toHexadecimalString(), 16) }
+    val t3 = BigInteger(1, nSha1XoredByGSha1.reversedArray())
+    val t4 = login.toByteArray().sha1()
+    return BigInteger(1, sha1 {
+      update(t3.toReversedByteArray())
+      update(t4)
+      update(srp6.s.toReversedByteArray())
+      update(a.toReversedByteArray())
+      update(srp6.B.toReversedByteArray())
+      update(k.toReversedByteArray())
+    }.reversedArray())
   }
 
   private fun vk(t1Sha1: ByteArray): ByteArray {
@@ -72,10 +79,14 @@ object LogonProofHandler : CommandHandler {
   }
 }
 
-fun sha1(vararg bigInts: BigInteger): ByteArray {
+inline fun sha1(ops: MessageDigest.() -> Unit): ByteArray {
   val messageDigest = MessageDigest.getInstance("SHA1")
-  messageDigest.apply {
-    bigInts.map { it.toReversedByteArray() }.forEach(::update)
-  }
+  ops(messageDigest)
+  return messageDigest.digest()
+}
+
+fun sha1(bigInteger: BigInteger): ByteArray {
+  val messageDigest = MessageDigest.getInstance("SHA1")
+  messageDigest.update(bigInteger.toReversedByteArray())
   return messageDigest.digest()
 }

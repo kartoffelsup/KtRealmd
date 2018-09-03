@@ -41,11 +41,12 @@ fun ByteArray.toUtf8() = this.toString(Charsets.UTF_8)
 
 fun ByteArray.stripLeadingZeros(): ByteArray {
   var lastZeroIndex = -1
-  this.forEachIndexed { index, byte ->
+  for (index in 0..(size - 1)) {
+    val byte = this[index]
     if (byte == nulByte) {
       lastZeroIndex = index
     } else {
-      return@forEachIndexed
+      break
     }
   }
   return if (lastZeroIndex == -1) {

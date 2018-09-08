@@ -6,8 +6,8 @@ import org.jetbrains.exposed.sql.statements.UpdateStatement
 import org.jetbrains.exposed.sql.update
 import org.jetbrains.exposed.sql.upperCase
 
-object AccountDbOps {
-  fun findAccount(username: String): AccountDto? {
+object AccountDbOps : AccountDb {
+  override fun findAccount(username: String): AccountDto? {
     val result = DbOps.transaction {
       Account.select {
         Account.username.upperCase() eq username.toUpperCase()
@@ -38,8 +38,13 @@ object AccountDbOps {
     }
   }
 
-  fun update(username: String, body: Account.(UpdateStatement) -> Unit) =
+  override fun update(username: String, body: Account.(UpdateStatement) -> Unit) =
     DbOps.transaction {
       Account.update({ Account.username.upperCase() eq username.toUpperCase() }, body = body)
     }
+}
+
+interface AccountDb {
+  fun findAccount(username: String): AccountDto?
+  fun update(username: String, body: Account.(UpdateStatement) -> Unit): Int
 }

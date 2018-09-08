@@ -2,6 +2,7 @@ package com.arml.realmd.networking
 
 import com.arml.realmd.Command
 import com.arml.realmd.CommandHandler
+import com.arml.realmd.auth.AccountDbOps
 import com.arml.realmd.auth.Srp6Values
 import com.arml.realmd.auth.challenge.LogonChallengeHandler
 import com.arml.realmd.auth.proof.LogonProofHandler
@@ -10,16 +11,11 @@ import java.io.IOException
 import java.net.Socket
 import java.util.concurrent.atomic.AtomicBoolean
 
-fun handler(cmd: Command): CommandHandler? = when (cmd) {
-  Command.AUTH_LOGON_CHALLENGE -> LogonChallengeHandler
-  Command.AUTH_LOGON_PROOF -> LogonProofHandler
-  else -> null
-}
-
-class ClientHandler constructor(private val client: Socket) : Runnable {
+class ClientHandler constructor(private val client: Socket) : Runnable, IClientHandler {
   private val running = AtomicBoolean(false)
-  var srp6Values: Srp6Values? = null
-  var login: String? = null
+  override var srp6Values: Srp6Values? = null
+  override var login: String? = null
+  override val ip: String = client.inetAddress.hostAddress
 
   private val isConnected: Boolean
     get() = client.isConnected && !client.isClosed && running.acquire
@@ -42,7 +38,8 @@ class ClientHandler constructor(private val client: Socket) : Runnable {
     try {
       while (running.acquire) {
         val receivedBytes = client.getInputStream().read(bytes, 0, bytes.size)
-        if (receivedBytes <= 0) {
+        if (receivedBytes < 0) {
+          System.err.println("Received <0 bytes")
           break
         }
         println("Received: $receivedBytes Byte(s) from $this ")
@@ -52,6 +49,7 @@ class ClientHandler constructor(private val client: Socket) : Runnable {
         println("Received cmd: $command payload: ${received.contentToString()} from $client")
         val handler: CommandHandler? = command?.let(::handler)
         val response = handler?.handle(received, this)
+        println("Sending ${response?.contentToString()}")
         response?.let(::sendMessage)
       }
 
@@ -65,6 +63,12 @@ class ClientHandler constructor(private val client: Socket) : Runnable {
 
       println("$this exception occurred: $ioe")
     }
+  }
+
+  private fun handler(cmd: Command): CommandHandler? = when (cmd) {
+    Command.AUTH_LOGON_CHALLENGE -> LogonChallengeHandler(AccountDbOps)
+    Command.AUTH_LOGON_PROOF -> LogonProofHandler(AccountDbOps)
+    else -> null
   }
 
   private fun ensureConnected() {

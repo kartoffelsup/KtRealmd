@@ -18,7 +18,7 @@ object DbOps {
 
   fun initializeSchema() {
     transaction(db) {
-      SchemaUtils.create(RealmList, Account)
+      SchemaUtils.create(Account)
     }
   }
 

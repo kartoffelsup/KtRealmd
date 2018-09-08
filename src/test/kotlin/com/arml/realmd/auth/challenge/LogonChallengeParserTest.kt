@@ -1,6 +1,7 @@
 package com.arml.realmd.auth.challenge
 
 import com.arml.realmd.Command
+import com.arml.realmd.util.toReversedByteArray
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import java.math.BigInteger
@@ -23,8 +24,6 @@ class LogonChallengeParserTest {
       83, 84, 82, 65,
       84, 79, 82, 0
     )
-    BigInteger(input)
-    val actual = LogonChallengeParser.parse(input)
 
     val expected = LogonChallengeParams(
       cmd = Command.AUTH_LOGON_CHALLENGE,
@@ -44,6 +43,39 @@ class LogonChallengeParserTest {
       username = "ADMINISTRATOR"
     )
 
+    val actual = LogonChallengeParser.parse(input)
+    assertThat(actual).isNotNull
+
+    if (actual != null) {
+      assertThat(actual).isEqualTo(expected)
+    }
+  }
+
+  @Test
+  fun parse2() {
+    val input =
+      BigInteger("49486913718021746441250803648978276699302210686036230446916379472485252247460027053942952521760566535127235756800")
+        .toReversedByteArray()
+
+    val expected = LogonChallengeParams(
+      cmd = Command.AUTH_LOGON_CHALLENGE,
+      error = 3,
+      remainingSize = 43,
+      gameName = "WoW",
+      version1 = 1,
+      version2 = 12,
+      version3 = 1,
+      build = 5875,
+      platform = "x86",
+      os = "Win",
+      country = "enUS",
+      timezoneBias = 60,
+      ip = "[127, 0, 0, 1, 13]",
+      usernameLength = 13,
+      username = "ADMINISTRATOR"
+    )
+
+    val actual = LogonChallengeParser.parse(input)
     assertThat(actual).isNotNull
 
     if (actual != null) {

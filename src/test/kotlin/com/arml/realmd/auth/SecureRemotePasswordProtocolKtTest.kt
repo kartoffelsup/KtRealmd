@@ -34,7 +34,10 @@ class SecureRemotePasswordProtocolTest {
   @Test
   fun testCalculateSrp6() {
     val srp6Values: Srp6Values =
-      calculateSrp6ForTest(accountDto, BigInteger("4591715913358148007112195511131027575013655409"))
+      SecureRemotePasswordProtocol.calculateSrp6ForTest(
+        accountDto,
+        BigInteger("4591715913358148007112195511131027575013655409")
+      )
 
     assertThat(srp6Values.s)
       .withFailMessage("Expecting 's' to equal '107804961377121431927430582703752344117406575734048882862298890256631438311387' but was '${srp6Values.s}'")
@@ -53,7 +56,10 @@ class SecureRemotePasswordProtocolTest {
   @Test
   fun testCalculateVFromS() {
     val srp6Values: Srp6Values =
-      calculateSrp6ForTest(accountDtoForVTest, BigInteger("4591715913358148007112195511131027575013655409"))
+      SecureRemotePasswordProtocol.calculateSrp6ForTest(
+        accountDtoForVTest,
+        BigInteger("4591715913358148007112195511131027575013655409")
+      )
 
     val sHex = srp6Values.s.toHexadecimalString()
     assertThat(sHex)
@@ -70,7 +76,7 @@ class SecureRemotePasswordProtocolTest {
 
   @Test
   fun testCalculateSrp6_SAndVSizes() {
-    val srp6Values: Srp6Values = calculateSrp6(accountDto)
+    val srp6Values: Srp6Values = SecureRemotePasswordProtocol.calculateSrp6(accountDto)
 
     assertThat(srp6Values.s.toHexadecimalString())
       .hasSize(64)

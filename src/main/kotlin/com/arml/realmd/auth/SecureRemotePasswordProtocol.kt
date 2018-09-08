@@ -25,36 +25,38 @@ data class Srp6Values(
   val x: BigInteger
 )
 
-fun calculateSrp6(accountDto: AccountDto): Srp6Values {
-  return calculateSrp6Internal(accountDto)
-}
-
-internal fun calculateSrp6ForTest(accountDto: AccountDto, b: BigInteger): Srp6Values {
-  return calculateSrp6Internal(accountDto, b)
-}
-
-private fun calculateSrp6Internal(accountDto: AccountDto, b: BigInteger? = null): Srp6Values {
-  val sFromDb = accountDto.s
-  val vFromDb = accountDto.v
-  val passHash = accountDto.shaPassHash
-  val passBytes = passHash.hexStringToByteArray()
-  val s = sFromDb?.let {
-    BigInteger(it, 16)
-  } ?: BigInteger(sBitSize, ThreadLocalRandom.current())
-
-  val messageDigest = MessageDigest.getInstance("SHA1")
-  messageDigest.apply {
-    update(s.toReversedByteArray())
-    update(passBytes)
+object SecureRemotePasswordProtocol {
+  fun calculateSrp6(accountDto: AccountDto): Srp6Values {
+    return calculateSrp6Internal(accountDto)
   }
 
-  val digest = messageDigest.digest()
-  val x = BigInteger(digest.reversedArray().toHexadecimalString(), 16)
-  val vBigInt = vFromDb?.let { BigInteger(it, 16) } ?: g.modPow(x, nBigInteger)
-  val bToUse = b ?: BigInteger(19 * 8, ThreadLocalRandom.current())
-  val gmod = g.modPow(bToUse, nBigInteger)
-  check(gmod.toByteArray().size >= 32) { "gmod must have a bytarray size >= 32" }
-  val upperB = ((vBigInt * BigInteger.valueOf(3L)) + gmod) % nBigInteger
+  internal fun calculateSrp6ForTest(accountDto: AccountDto, b: BigInteger): Srp6Values {
+    return calculateSrp6Internal(accountDto, b)
+  }
 
-  return Srp6Values(upperB, bToUse, g, nBigInteger, vBigInt, s, x)
+  private fun calculateSrp6Internal(accountDto: AccountDto, b: BigInteger? = null): Srp6Values {
+    val sFromDb = accountDto.s
+    val vFromDb = accountDto.v
+    val passHash = accountDto.shaPassHash
+    val passBytes = passHash.hexStringToByteArray()
+    val s = sFromDb?.let {
+      BigInteger(it, 16)
+    } ?: BigInteger(sBitSize, ThreadLocalRandom.current())
+
+    val messageDigest = MessageDigest.getInstance("SHA1")
+    messageDigest.apply {
+      update(s.toReversedByteArray())
+      update(passBytes)
+    }
+
+    val digest = messageDigest.digest()
+    val x = BigInteger(digest.reversedArray().toHexadecimalString(), 16)
+    val vBigInt = vFromDb?.let { BigInteger(it, 16) } ?: g.modPow(x, nBigInteger)
+    val bToUse = b ?: BigInteger(19 * 8, ThreadLocalRandom.current())
+    val gmod = g.modPow(bToUse, nBigInteger)
+    check(gmod.toByteArray().size >= 32) { "gmod '${gmod.toByteArray().size}' must have a bytarray size >= 32" }
+    val upperB = ((vBigInt * BigInteger.valueOf(3L)) + gmod) % nBigInteger
+
+    return Srp6Values(upperB, bToUse, g, nBigInteger, vBigInt, s, x)
+  }
 }

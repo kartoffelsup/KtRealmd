@@ -1,7 +1,7 @@
 package com.arml.realmd
 
-import com.arml.realmd.networking.ClientHandler
+import com.arml.realmd.networking.IClientHandler
 
 interface CommandHandler {
-  fun handle(input: ByteArray, clientHandler: ClientHandler): ByteArray?
+  fun handle(input: ByteArray, clientHandler: IClientHandler): ByteArray?
 }

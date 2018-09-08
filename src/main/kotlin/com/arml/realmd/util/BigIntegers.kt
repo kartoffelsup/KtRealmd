@@ -2,6 +2,10 @@ package com.arml.realmd.util
 
 import java.math.BigInteger
 
+fun positiveBigInteger(byteArray: ByteArray): BigInteger {
+  return BigInteger(1, byteArray)
+}
+
 fun BigInteger.toReversedByteArray(minLength: Int = 0): ByteArray {
   val byteArray = this.toByteArray().stripLeadingZeros()
   var result: ByteArray = byteArray

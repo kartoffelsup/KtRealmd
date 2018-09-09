@@ -3,15 +3,20 @@ package com.arml.realmd.networking
 import com.arml.realmd.Command
 import com.arml.realmd.CommandHandler
 import com.arml.realmd.auth.AccountDbOps
+import com.arml.realmd.realmlist.RealmListHandler
 import com.arml.realmd.auth.Srp6Values
 import com.arml.realmd.auth.challenge.LogonChallengeHandler
 import com.arml.realmd.auth.proof.LogonProofHandler
 import com.arml.realmd.findCmd
+import com.arml.realmd.realmlist.RealmlistDbOps
 import java.io.IOException
+import java.math.BigInteger
 import java.net.Socket
 import java.util.concurrent.atomic.AtomicBoolean
 
-class ClientHandler constructor(private val client: Socket) : Runnable, IClientHandler {
+class ClientHandler(
+  private val client: Socket
+) : Runnable, IClientHandler {
   private val running = AtomicBoolean(false)
   override var srp6Values: Srp6Values? = null
   override var login: String? = null
@@ -68,6 +73,7 @@ class ClientHandler constructor(private val client: Socket) : Runnable, IClientH
   private fun handler(cmd: Command): CommandHandler? = when (cmd) {
     Command.AUTH_LOGON_CHALLENGE -> LogonChallengeHandler(AccountDbOps)
     Command.AUTH_LOGON_PROOF -> LogonProofHandler(AccountDbOps)
+    Command.REALM_LIST -> RealmListHandler(RealmlistDbOps)
     else -> null
   }
 

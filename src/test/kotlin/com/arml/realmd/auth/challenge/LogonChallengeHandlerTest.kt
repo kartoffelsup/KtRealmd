@@ -27,7 +27,7 @@ class LogonChallengeHandlerTest {
   @Test
   fun testHandle() {
     val response: ByteArray? = logonChallengeHandler.handle(input, ClientHandlerMock)
-    val actualWithoutRandomUnknownPart = response?.let { it.sliceArray(17 until it.size)}
+    val actualWithoutRandomUnknownPart = response?.let { it.sliceArray(17 until it.size) }
 
     actualWithoutRandomUnknownPart?.let {
       assertThat(it.toHexadecimalString())

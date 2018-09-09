@@ -1,5 +1,6 @@
 package com.arml.realmd.auth.proof
 
+import com.arml.realmd.Command
 import com.arml.realmd.auth.Account
 import com.arml.realmd.auth.AccountDb
 import com.arml.realmd.auth.AccountDto
@@ -13,6 +14,8 @@ import org.assertj.core.api.Assertions.assertThat
 import org.jetbrains.exposed.sql.statements.UpdateStatement
 import org.junit.Test
 import java.math.BigInteger
+import java.nio.ByteBuffer
+import java.util.concurrent.ThreadLocalRandom
 
 @ExperimentalUnsignedTypes
 class LogonProofHandlerTest {
@@ -23,7 +26,7 @@ class LogonProofHandlerTest {
   fun testCalculateM() {
     val a = BigInteger("3D90DDA9AB551BB014977CA07820A43DACA82C861546D55DEEF0D23699F6C1C5", 16)
     val srp6Values = Srp6Values(
-      B = BigInteger("07381756684AEBA4D0C0E4001F144CA154B91F53F53B085329E6ED9F573C7B6F", 16),
+      upperB = BigInteger("07381756684AEBA4D0C0E4001F144CA154B91F53F53B085329E6ED9F573C7B6F", 16),
       lowerB = BigInteger("A17981033ED6094D9B6DF9AE7D75C956AC6221", 16),
       g = BigInteger("7"),
       v = BigInteger("56A9FAE94E75707FE301D86CF5EE5822B8EE642497E04A07BAA295C3A69A9652", 16),
@@ -84,7 +87,7 @@ class LogonProofHandlerTest {
 
     val a = positiveBigInteger(aByteArray.reversedArray())
     val srp6Values = Srp6Values(
-      B = positiveBigInteger(upperB.reversedArray()),
+      upperB = positiveBigInteger(upperB.reversedArray()),
       lowerB = positiveBigInteger(lowerB.reversedArray()),
       g = BigInteger("7"),
       v = BigInteger(vHash, 16),
@@ -97,6 +100,42 @@ class LogonProofHandlerTest {
     assertThat(actual.k.toReversedByteArray()).isEqualTo(k)
     assertThat(actual.m.toReversedByteArray()).isEqualTo(m2)
   }
+
+  @Test
+  fun testHandle() {
+    val cmd: Byte = Command.AUTH_LOGON_PROOF.value
+    val a = BigInteger("2E5C9E7353FA54BDA4B0A98E388562EA162AD6306D9FF2B57B8EFF6B61A63018", 16)
+    val m1 = BigInteger("C43C54509253B48A2CBBDDF5092FF286F78E6A72", 16)
+    val input = ByteBuffer.allocate(76).apply {
+      put(cmd)
+      put(a.toReversedByteArray())
+      put(m1.toReversedByteArray())
+      put(BigInteger(20 * 8, ThreadLocalRandom.current()).toReversedByteArray())
+      put(0)
+      put(0)
+    }.array()
+
+    val actual = logonProofHandler.handle(input, ClientHandlerMock)
+
+    val expectedOutput = ByteBuffer.allocate(26).apply {
+      put(Command.AUTH_LOGON_PROOF.value)
+      put(0)
+      put(
+        ubyteArrayOf(
+          85, 109, 84, 244, 173,
+          221, 123, 170, 34, 128,
+          198, 156, 145, 168, 175,
+          118, 238, 239, 212, 103
+        ).toByteArray()
+      )
+      put(0)
+      put(0)
+      put(0)
+      put(0)
+    }.array()
+
+    assertThat(actual).isEqualTo(expectedOutput)
+  }
 }
 
 private object AccountDbMock : AccountDb {
@@ -105,7 +144,13 @@ private object AccountDbMock : AccountDb {
 }
 
 private object ClientHandlerMock : IClientHandler {
-  override var srp6Values: Srp6Values? = null
-  override var login: String? = null
+  override var srp6Values: Srp6Values? = Srp6Values(
+    upperB = BigInteger("1BA953422EC758DD77DCB1FCC12A198E2CED7C6C2C7603EE575E2C8839954123", 16),
+    lowerB = BigInteger("9837BC5E18F3A04F0638FF79987311767BE6D7", 16),
+    v = BigInteger("7FEE361FF13EA1DCF9C44F2252DAB77E86F056AB77306176859F2D352ECE52D4", 16),
+    s = BigInteger("EE5772222579A1C3C61176E02B6EDF27111F2943538EAD8FB858842EAEF8FFDB", 16),
+    x = BigInteger.ZERO
+  )
+  override var login: String? = "ADMINISTRATOR"
   override val ip: String = "127.0.0.1"
 }

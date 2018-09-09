@@ -44,7 +44,7 @@ class LogonChallengeHandler(
           write(Command.AUTH_LOGON_CHALLENGE.value.toInt())
           write(0)
           write(AuthResult.WOW_SUCCESS.value.toInt())
-          write(srp6.B.toReversedByteArray(32), 0, 32)
+          write(srp6.upperB.toReversedByteArray(32), 0, 32)
           write(1)
           write(srp6.g.toByteArray(), 0, 1)
           write(32)

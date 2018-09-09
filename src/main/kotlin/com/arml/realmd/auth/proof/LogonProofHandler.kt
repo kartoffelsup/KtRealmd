@@ -18,7 +18,6 @@ import java.nio.ByteBuffer
 import java.security.MessageDigest
 import kotlin.experimental.xor
 
-// TODO: Test LogonChallenge and LogonProof together - use input, output from c++ implementation for assertions
 class LogonProofHandler(
   private val accountDb: AccountDb
   ) : CommandHandler {
@@ -50,11 +49,14 @@ class LogonProofHandler(
             update(proofResult.k.toReversedByteArray())
           }
 
-          val byteBuffer = ByteBuffer.allocate(23)
+          val byteBuffer = ByteBuffer.allocate(26)
           return byteBuffer.apply {
             put(Command.AUTH_LOGON_PROOF.value)
             put(0)
             put(m2)
+            put(0)
+            put(0)
+            put(0)
             put(0)
           }.array()
         }
@@ -70,7 +72,7 @@ class LogonProofHandler(
   ): ProofResult {
     val aBSha1 = sha1 {
       update(a.toReversedByteArray())
-      update(srp6.B.toReversedByteArray())
+      update(srp6.upperB.toReversedByteArray())
     }
     val u = positiveBigInteger(aBSha1.reversedArray())
     val s = (a * (srp6.v.modPow(u, srp6.N))).modPow(srp6.lowerB, srp6.N)
@@ -98,7 +100,7 @@ class LogonProofHandler(
       update(t4)
       update(srp6.s.toReversedByteArray())
       update(a.toReversedByteArray())
-      update(srp6.B.toReversedByteArray())
+      update(srp6.upperB.toReversedByteArray())
       update(k.toReversedByteArray())
     }.reversedArray())
     return ProofResult(k, m)

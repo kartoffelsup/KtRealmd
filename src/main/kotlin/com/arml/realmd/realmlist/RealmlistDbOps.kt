@@ -9,6 +9,7 @@ object RealmlistDbOps : RealmlistDb {
     return DbOps.transaction {
       (RealmList leftJoin  RealmCharacters)
         .select { (RealmList.id eq RealmCharacters.realmId) or RealmCharacters.realmId.isNull()}
+        .distinctBy { it[RealmList.id] }
         .map {
           RealmListDto(
             it[RealmList.id],

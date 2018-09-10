@@ -32,7 +32,7 @@ data class AccountDto(
   val sessionKey: String,
   val v: String?,
   val s: String?,
-  val email: String,
+  val email: String?,
   val joinDate: DateTime,
   val lastIp: String,
   val failedLogins: Int,

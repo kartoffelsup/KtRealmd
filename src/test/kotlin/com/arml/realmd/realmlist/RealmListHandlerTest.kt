@@ -39,6 +39,4 @@ object ClientHandlerMock : IClientHandler {
   override var srp6Values: Srp6Values? = null
   override var login: String? = "ADMINISTRATOR"
   override val ip: String = "127.0.0.1"
-  override var sessionKey: String? = null
-  override var reconnectProof: BigInteger? = null
 }

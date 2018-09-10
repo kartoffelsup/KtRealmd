@@ -39,4 +39,5 @@ dependencies {
 
 tasks.withType<KotlinCompile> {
   kotlinOptions.jvmTarget = "1.8"
+  kotlinOptions.freeCompilerArgs = listOf("-Xuse-experimental=kotlin.ExperimentalUnsignedTypes")
 }

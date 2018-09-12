@@ -10,7 +10,6 @@ import com.arml.realmd.auth.proof.LogonProofHandler
 import com.arml.realmd.findCmd
 import com.arml.realmd.realmlist.RealmlistDbOps
 import java.io.IOException
-import java.math.BigInteger
 import java.net.Socket
 import java.util.concurrent.atomic.AtomicBoolean
 

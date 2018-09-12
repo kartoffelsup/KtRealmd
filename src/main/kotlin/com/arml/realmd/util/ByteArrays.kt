@@ -26,7 +26,7 @@ fun ByteArray.reverseToString(): String {
   val reversedArray = reversedArray()
   val firstByte = reversedArray[0]
   if (firstByte == nulByte) {
-    return reversedArray.sliceArray(1..(reversedArray.size - 1)).toUtf8()
+    return reversedArray.sliceArray(1 until reversedArray.size).toUtf8()
   }
   return reversedArray.toUtf8()
 }
@@ -52,7 +52,7 @@ fun ByteArray.stripLeadingZeros(): ByteArray {
   return if (lastZeroIndex == -1) {
     this
   } else {
-    this.sliceArray((lastZeroIndex + 1)..(this.size - 1))
+    this.sliceArray((lastZeroIndex + 1) until this.size)
   }
 }
 

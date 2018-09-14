@@ -24,7 +24,7 @@ class RealmListHandlerTest {
   }
 }
 
-object RealmListDbMock : RealmlistDb {
+object RealmListDbMock : RealmListDb {
   override fun findNumChars(login: String): List<Pair<RealmListDto, Int?>> {
     return listOf(
       RealmListDto(1, "MaNGOS", "127.0.0.1", 8085, 1, 2, 1, 0, 0.0f, "") to 3,

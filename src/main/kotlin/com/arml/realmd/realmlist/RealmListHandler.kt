@@ -9,7 +9,7 @@ import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 
 class RealmListHandler(
-  private val realmListDb: RealmlistDb
+  private val realmListDb: RealmListDb
 ) : CommandHandler {
   override fun handle(input: ByteArray, clientHandler: IClientHandler): ByteArray? {
     val realmToNumChars: List<Pair<RealmListDto, Int?>> =

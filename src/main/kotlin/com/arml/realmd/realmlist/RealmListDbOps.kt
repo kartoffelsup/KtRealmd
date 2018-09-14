@@ -1,14 +1,19 @@
 package com.arml.realmd.realmlist
 
 import com.arml.realmd.DbOps
-import org.jetbrains.exposed.sql.or
-import org.jetbrains.exposed.sql.select
+import com.arml.realmd.auth.Account
+import org.jetbrains.exposed.sql.JoinType
+import org.jetbrains.exposed.sql.selectAll
 
-object RealmlistDbOps : RealmlistDb {
+object RealmListDbOps : RealmListDb {
   override fun findNumChars(login: String): List<Pair<RealmListDto, Int?>> {
     return DbOps.transaction {
-      (RealmList leftJoin  RealmCharacters)
-        .select { (RealmList.id eq RealmCharacters.realmId) or RealmCharacters.realmId.isNull()}
+      RealmList.join(Account, JoinType.LEFT, additionalConstraint = { Account.username eq login })
+        .leftJoin(RealmCharacters)
+        .slice(
+          RealmList.columns + RealmCharacters.numChars
+        )
+        .selectAll()
         .distinctBy { it[RealmList.id] }
         .map {
           RealmListDto(

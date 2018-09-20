@@ -22,7 +22,7 @@ class ClientHandler(
   override val ip: String = client.inetAddress.hostAddress
 
   private val isConnected: Boolean
-    get() = client.isConnected && !client.isClosed && running.acquire
+    get() = client.isConnected && !client.isClosed && running.get()
 
   init {
     this.running.set(true)
@@ -40,7 +40,7 @@ class ClientHandler(
   override fun run() {
     val bytes = ByteArray(DEFAULT_PAYLOAD_LENGTH)
     try {
-      while (running.acquire) {
+      while (running.get()) {
         val receivedBytes = client.getInputStream().read(bytes, 0, bytes.size)
         if (receivedBytes < 0) {
           System.err.println("Received <0 bytes")

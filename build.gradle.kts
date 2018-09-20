@@ -1,3 +1,5 @@
+import org.gradle.jvm.tasks.Jar
+import org.jetbrains.kotlin.contracts.model.structure.UNKNOWN_COMPUTATION.type
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.gradle.dsl.Coroutines
 
@@ -40,4 +42,21 @@ dependencies {
 tasks.withType<KotlinCompile> {
   kotlinOptions.jvmTarget = "1.8"
   kotlinOptions.freeCompilerArgs = listOf("-Xuse-experimental=kotlin.ExperimentalUnsignedTypes")
+}
+
+tasks {
+  register("bundle", Jar::class) {
+    manifest {
+      attributes["Main-Class"] = "com.arml.realmd.RealmdKt"
+    }
+    baseName = "realmd"
+    from(
+      configurations.compile.map {
+        if (it.isDirectory)
+          it
+        else zipTree(it)
+      }
+    )
+    with(tasks["jar"] as CopySpec)
+  }
 }

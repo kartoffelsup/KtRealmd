@@ -1,7 +1,0 @@
-{
-  "dbHost": "127.0.0.1",
-  "dbPort": "3306",
-  "dbPass": "foo",
-  "listenAddress": "127.0.0.1",
-  "listenPort": "3724"
-}

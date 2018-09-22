@@ -1,14 +1,14 @@
 package com.arml.realmd.auth
 
-import com.arml.realmd.DbOps
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.statements.UpdateStatement
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import org.jetbrains.exposed.sql.upperCase
 
 object AccountDbOps : AccountDb {
   override fun findAccount(username: String): AccountDto? {
-    val result = DbOps.transaction {
+    val result = transaction {
       Account.select {
         Account.username.upperCase() eq username.toUpperCase()
       }.firstOrNull()
@@ -39,7 +39,7 @@ object AccountDbOps : AccountDb {
   }
 
   override fun update(username: String, body: Account.(UpdateStatement) -> Unit) =
-    DbOps.transaction {
+    transaction {
       Account.update({ Account.username.upperCase() eq username.toUpperCase() }, body = body)
     }
 }

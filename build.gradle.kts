@@ -1,5 +1,4 @@
 import org.gradle.jvm.tasks.Jar
-import org.jetbrains.kotlin.contracts.model.structure.UNKNOWN_COMPUTATION.type
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.gradle.dsl.Coroutines
 
@@ -25,6 +24,10 @@ val kotlinVersion: String by extra
 val exposedVersion: String by extra
 val mariaDbVersion: String by extra
 val guavaVersion: String by extra
+val argParserVersion: String by extra
+
+val jUnitVersion: String  by extra
+val assertJVersion: String by extra
 
 dependencies {
   compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
@@ -32,9 +35,8 @@ dependencies {
   compile("org.jetbrains.exposed:exposed:$exposedVersion")
   compile("org.mariadb.jdbc:mariadb-java-client:$mariaDbVersion")
   compile("com.google.guava:guava:$guavaVersion")
+  compile("com.xenomachina:kotlin-argparser:$argParserVersion")
 
-  val jUnitVersion: String  by extra
-  val assertJVersion: String by extra
   testCompile("junit:junit:$jUnitVersion")
   testCompile("org.assertj:assertj-core:$assertJVersion")
 }

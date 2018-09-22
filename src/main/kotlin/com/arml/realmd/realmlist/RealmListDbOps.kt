@@ -1,13 +1,13 @@
 package com.arml.realmd.realmlist
 
-import com.arml.realmd.DbOps
 import com.arml.realmd.auth.Account
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.transactions.transaction
 
 object RealmListDbOps : RealmListDb {
   override fun findNumChars(login: String): List<Pair<RealmListDto, Int?>> {
-    return DbOps.transaction {
+    return transaction {
       RealmList.join(Account, JoinType.LEFT, additionalConstraint = { Account.username eq login })
         .leftJoin(RealmCharacters)
         .slice(

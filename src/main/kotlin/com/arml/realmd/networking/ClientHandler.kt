@@ -3,12 +3,12 @@ package com.arml.realmd.networking
 import com.arml.realmd.Command
 import com.arml.realmd.CommandHandler
 import com.arml.realmd.auth.AccountDbOps
-import com.arml.realmd.realmlist.RealmListHandler
 import com.arml.realmd.auth.Srp6Values
 import com.arml.realmd.auth.challenge.LogonChallengeHandler
 import com.arml.realmd.auth.proof.LogonProofHandler
 import com.arml.realmd.findCmd
 import com.arml.realmd.realmlist.RealmListDbOps
+import com.arml.realmd.realmlist.RealmListHandler
 import java.io.IOException
 import java.net.Socket
 import java.util.concurrent.atomic.AtomicBoolean

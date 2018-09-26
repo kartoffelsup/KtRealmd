@@ -5,11 +5,13 @@ import com.arml.realmd.CommandHandler
 import com.arml.realmd.auth.AccountDbOps
 import com.arml.realmd.auth.Srp6Values
 import com.arml.realmd.auth.challenge.LogonChallengeHandler
+import com.arml.realmd.auth.challenge.ReconnectChallengeHandler
 import com.arml.realmd.auth.proof.LogonProofHandler
 import com.arml.realmd.findCmd
 import com.arml.realmd.realmlist.RealmListDbOps
 import com.arml.realmd.realmlist.RealmListHandler
 import java.io.IOException
+import java.math.BigInteger
 import java.net.Socket
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -20,6 +22,8 @@ class ClientHandler(
   override var srp6Values: Srp6Values? = null
   override var login: String? = null
   override val ip: String = client.inetAddress.hostAddress
+  override var sessionKey: String? = null
+  override var reconnectProof: BigInteger? = null
 
   private val isConnected: Boolean
     get() = client.isConnected && !client.isClosed && running.get()
@@ -73,6 +77,7 @@ class ClientHandler(
     Command.AUTH_LOGON_CHALLENGE -> LogonChallengeHandler(AccountDbOps)
     Command.AUTH_LOGON_PROOF -> LogonProofHandler(AccountDbOps)
     Command.REALM_LIST -> RealmListHandler(RealmListDbOps)
+    Command.AUTH_RECONNECT_CHALLENGE -> ReconnectChallengeHandler(AccountDbOps)
     else -> null
   }
 

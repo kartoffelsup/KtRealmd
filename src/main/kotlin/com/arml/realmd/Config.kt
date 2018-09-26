@@ -42,7 +42,6 @@ class ConfigParser(private val configLocation: String, private val prefix: Strin
   }
 }
 
-
 class Delegate<T>(
   private val props: Map<String, String>,
   private val prefix: String,

@@ -2,6 +2,7 @@ package com.arml.realmd
 
 import com.arml.realmd.networking.ClientHandler
 import com.xenomachina.argparser.ArgParser
+import org.apache.logging.log4j.LogManager
 import org.jetbrains.exposed.sql.Database
 import java.net.InetAddress
 import java.net.SocketException
@@ -13,14 +14,13 @@ fun main(args: Array<String>) {
   val realmdArgs = ArgParser(args).parseInto(::RealmdArgs)
   val config = ConfigParser(realmdArgs.configLocation, "ktrealmd").let(::Config)
 
-  val db by lazy {
+  val db =
     Database.connect(
       url = "jdbc:mysql://${config.dbHost}:${config.dbPort}/${config.dbName}",
       driver = "org.mariadb.jdbc.Driver",
       user = config.dbUser,
       password = config.dbPass
     )
-  }
 
   DbOps.initializeSchema(db)
   startListening(config)

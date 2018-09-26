@@ -7,6 +7,14 @@ import org.jetbrains.exposed.sql.update
 import org.jetbrains.exposed.sql.upperCase
 
 object AccountDbOps : AccountDb {
+  override fun findSessionKey(username: String): String? =
+    transaction {
+      Account.slice(Account.sessionKey)
+        .select { Account.username eq username }
+        .map { it[Account.sessionKey] }
+        .firstOrNull()
+    }
+
   override fun findAccount(username: String): AccountDto? {
     val result = transaction {
       Account.select {
@@ -47,4 +55,5 @@ object AccountDbOps : AccountDb {
 interface AccountDb {
   fun findAccount(username: String): AccountDto?
   fun update(username: String, body: Account.(UpdateStatement) -> Unit): Int
+  fun findSessionKey(username: String): String?
 }

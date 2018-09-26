@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.gradle.dsl.Coroutines
 
 plugins {
-  id("org.jetbrains.kotlin.jvm") version ("1.3-M2")
+  id("org.jetbrains.kotlin.jvm") version ("1.2.71")
 }
 
 group = "com.arml"
@@ -15,9 +15,6 @@ repositories {
   maven {
     url = uri("https://dl.bintray.com/kotlin/exposed")
   }
-  maven {
-    url = uri("http://dl.bintray.com/kotlin/kotlin-eap")
-  }
 }
 
 val kotlinVersion: String by extra
@@ -25,6 +22,7 @@ val exposedVersion: String by extra
 val mariaDbVersion: String by extra
 val guavaVersion: String by extra
 val argParserVersion: String by extra
+val log4jVersion: String by extra
 
 val jUnitVersion: String  by extra
 val assertJVersion: String by extra
@@ -37,13 +35,16 @@ dependencies {
   compile("com.google.guava:guava:$guavaVersion")
   compile("com.xenomachina:kotlin-argparser:$argParserVersion")
 
+  compile("org.apache.logging.log4j:log4j-api:$log4jVersion")
+  compile("org.apache.logging.log4j:log4j-core:$log4jVersion")
+  runtime("org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion")
+
   testCompile("junit:junit:$jUnitVersion")
   testCompile("org.assertj:assertj-core:$assertJVersion")
 }
 
 tasks.withType<KotlinCompile> {
   kotlinOptions.jvmTarget = "1.8"
-  kotlinOptions.freeCompilerArgs = listOf("-Xuse-experimental=kotlin.ExperimentalUnsignedTypes")
 }
 
 tasks {

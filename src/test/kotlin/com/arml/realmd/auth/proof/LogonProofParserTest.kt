@@ -1,69 +1,29 @@
 package com.arml.realmd.auth.proof
 
 import com.arml.realmd.Command
-import com.arml.realmd.util.positiveBigInteger
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
+import java.math.BigInteger
 
 class LogonProofParserTest {
 
-  @ExperimentalUnsignedTypes
   @Test
   fun parse() {
-    val input = ubyteArrayOf(
-      1,
-
-      16, 40, 70, 58, 134,
-      226, 168, 125, 63, 192,
-      172, 183, 248, 121, 235,
-      141, 86, 227, 64, 153,
-      205, 53, 116, 16, 238,
-      19, 218, 55, 205, 245,
-      37, 26,
-
-      203, 175, 106, 121, 251,
-      209, 108, 3, 164, 247,
-      27, 203, 240, 42, 111,
-      116, 140, 248, 240, 96,
-
-      92, 19, 244, 124, 106,
-      62, 239, 214, 39, 96,
-      218, 102, 158, 81, 184,
-      163, 68, 123, 133, 239,
-
-      0,
-      0
-    ).toByteArray()
+    val input = byteArrayOf(
+      1, 16, 40, 70, 58, -122, -30, -88, 125, 63, -64,
+      -84, -73, -8, 121, -21, -115, 86, -29, 64, -103,
+      -51, 53, 116, 16, -18, 19, -38, 55, -51, -11, 37,
+      26, -53, -81, 106, 121, -5, -47, 108, 3, -92, -9,
+      27, -53, -16, 42, 111, 116, -116, -8, -16, 96, 92,
+      19, -12, 124, 106, 62, -17, -42, 39, 96, -38, 102,
+      -98, 81, -72, -93, 68, 123, -123, -17, 0, 0
+    )
 
     val expected = LogonProofParams(
       cmd = Command.AUTH_LOGON_PROOF,
-      a = positiveBigInteger(
-        ubyteArrayOf(
-          16, 40, 70, 58, 134,
-          226, 168, 125, 63, 192,
-          172, 183, 248, 121, 235,
-          141, 86, 227, 64, 153,
-          205, 53, 116, 16, 238,
-          19, 218, 55, 205, 245,
-          37, 26
-        ).toByteArray().reversedArray()
-      ),
-      m1 = positiveBigInteger(
-        ubyteArrayOf(
-          203, 175, 106, 121, 251,
-          209, 108, 3, 164, 247,
-          27, 203, 240, 42, 111,
-          116, 140, 248, 240, 96
-        ).toByteArray().reversedArray()
-      ),
-      crcHash = positiveBigInteger(
-        ubyteArrayOf(
-          92, 19, 244, 124, 106,
-          62, 239, 214, 39, 96,
-          218, 102, 158, 81, 184,
-          163, 68, 123, 133, 239
-        ).toByteArray().reversedArray()
-      ),
+      a = BigInteger("11827203865087644838231244116194817610001689481834515960723261925173292836880"),
+      m1 = BigInteger("553436944487946052754072863611667483787518455755"),
+      crcHash = BigInteger("1367425531506293977663669427091677767798713750364"),
       numberOfKeys = 0,
       securityFlags = 0
     )

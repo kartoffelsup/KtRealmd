@@ -5,14 +5,15 @@ import com.arml.realmd.auth.Srp6Values
 import com.arml.realmd.networking.IClientHandler
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
+import java.math.BigInteger
 
-val expectedResponse = ubyteArrayOf(
+val expectedResponse = byteArrayOf(
   16, 76, 0, 0, 0, 0, 0, 2, 1, 0, 0, 0, 2, 77, 97, 78, 71, 79, 83, 0, 49,
   50, 55, 46, 48, 46, 48, 46, 49, 58, 56, 48, 56, 53, 0, 0, 0, 0, 0,
   3, 1, 0, 1, 0, 0, 0, 2, 77, 97, 78, 71, 79, 83, 50, 0,
   49, 50, 55, 46, 48, 46, 48, 46, 49, 58, 56, 48,
   56, 54, 0, 0, 0, 0, 0, 0, 1, 0, 2, 0
-).toByteArray()
+)
 
 class RealmListHandlerTest {
   private val realmListHandler = RealmListHandler(RealmListDbMock)
@@ -34,6 +35,8 @@ object RealmListDbMock : RealmListDb {
 }
 
 object ClientHandlerMock : IClientHandler {
+  override var sessionKey: String? = null
+  override var reconnectProof: BigInteger? = null
   override var srp6Values: Srp6Values? = null
   override var login: String? = "ADMINISTRATOR"
   override val ip: String = "127.0.0.1"

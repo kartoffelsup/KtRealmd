@@ -17,7 +17,6 @@ import java.math.BigInteger
 import java.nio.ByteBuffer
 import java.util.concurrent.ThreadLocalRandom
 
-@ExperimentalUnsignedTypes
 class LogonProofHandlerTest {
 
   private val logonProofHandler = LogonProofHandler(AccountDbMock)
@@ -48,42 +47,37 @@ class LogonProofHandlerTest {
 
     val vHash = "7FEE361FF13EA1DCF9C44F2252DAB77E86F056AB77306176859F2D352ECE52D4"
 
-    val aByteArray = ubyteArrayOf(
-      184, 196, 42, 6, 178, 226, 55,
-      165, 29, 110, 104, 2, 82, 208, 148,
-      166, 144, 68, 157, 28, 118,
-      150, 6, 104, 120, 144, 158,
-      18, 204, 230, 69, 90
-    ).toByteArray()
+    val aByteArray = byteArrayOf(
+      -72, -60, 42, 6, -78, -30, 55, -91, 29,
+      110, 104, 2, 82, -48, -108, -90, -112,
+      68, -99, 28, 118, -106, 6, 104, 120,
+      -112, -98, 18, -52, -26, 69, 90
+    )
 
-    val k = ubyteArrayOf(
-      216, 38, 61, 117, 9, 67,
-      141, 220, 243, 124, 55, 92,
-      195, 7, 132, 32, 139, 182, 139,
-      161, 152, 182, 39, 41, 132,
-      12, 25, 190, 146, 47, 63,
-      250, 81, 133, 145, 62,
-      113, 70, 206, 113
-    ).toByteArray()
+    val k = byteArrayOf(
+      -40, 38, 61, 117, 9, 67, -115, -36,
+      -13, 124, 55, 92, -61, 7, -124, 32,
+      -117, -74, -117, -95, -104, -74, 39,
+      41, -124, 12, 25, -66, -110, 47, 63,
+      -6, 81, -123, -111, 62, 113, 70, -50, 113
+    )
 
-    val upperB = ubyteArrayOf(
-      223, 66, 8, 42, 248, 27, 207,
-      71, 71, 83, 121, 222, 128, 110,
-      12, 190, 124, 113, 161, 124,
-      168, 241, 74, 29, 152, 153,
-      89, 233, 156, 25, 41, 114
-    ).toByteArray()
+    val upperB = byteArrayOf(
+      -33, 66, 8, 42, -8, 27, -49, 71, 71, 83,
+      121, -34, -128, 110, 12, -66, 124, 113,
+      -95, 124, -88, -15, 74, 29, -104, -103,
+      89, -23, -100, 25, 41, 114
+    )
 
-    val lowerB = ubyteArrayOf(
-      145, 116, 28, 235, 32, 64, 158, 84, 101,
-      176, 119, 101, 1, 70, 200, 163,
-      255, 35, 222
-    ).toByteArray()
+    val lowerB = byteArrayOf(
+      -111, 116, 28, -21, 32, 64, -98, 84, 101,
+      -80, 119, 101, 1, 70, -56, -93, -1, 35, -34
+    )
 
-    val m2 = ubyteArrayOf(
-      123, 76, 253, 243, 17, 66, 166, 41, 242, 220, 52,
-      236, 15, 70, 235, 114, 41, 100, 13, 16
-    ).toByteArray()
+    val m2 = byteArrayOf(
+      123, 76, -3, -13, 17, 66, -90, 41, -14, -36,
+      52, -20, 15, 70, -21, 114, 41, 100, 13, 16
+    )
 
     val a = positiveBigInteger(aByteArray.reversedArray())
     val srp6Values = Srp6Values(
@@ -121,12 +115,10 @@ class LogonProofHandlerTest {
       put(Command.AUTH_LOGON_PROOF.value)
       put(0)
       put(
-        ubyteArrayOf(
-          85, 109, 84, 244, 173,
-          221, 123, 170, 34, 128,
-          198, 156, 145, 168, 175,
-          118, 238, 239, 212, 103
-        ).toByteArray()
+        byteArrayOf(
+          85, 109, 84, -12, -83, -35, 123, -86, 34, -128,
+          -58, -100, -111, -88, -81, 118, -18, -17, -44, 103
+        )
       )
       put(0)
       put(0)
@@ -139,11 +131,15 @@ class LogonProofHandlerTest {
 }
 
 private object AccountDbMock : AccountDb {
+  override fun findSessionKey(username: String): String? = ""
+
   override fun update(username: String, body: Account.(UpdateStatement) -> Unit): Int = 0
   override fun findAccount(username: String): AccountDto? = accountDto
 }
 
 private object ClientHandlerMock : IClientHandler {
+  override var sessionKey: String? = ""
+  override var reconnectProof: BigInteger? = null
   override var srp6Values: Srp6Values? = Srp6Values(
     upperB = BigInteger("1BA953422EC758DD77DCB1FCC12A198E2CED7C6C2C7603EE575E2C8839954123", 16),
     lowerB = BigInteger("9837BC5E18F3A04F0638FF79987311767BE6D7", 16),

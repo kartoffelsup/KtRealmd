@@ -49,6 +49,7 @@ tasks.withType<KotlinCompile> {
 
 tasks {
   register("bundle", Jar::class) {
+    dependsOn("build")
     manifest {
       attributes["Main-Class"] = "com.arml.realmd.RealmdKt"
     }

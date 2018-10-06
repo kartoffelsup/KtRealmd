@@ -1,9 +1,13 @@
 package com.arml.realmd
 
+import com.arml.realmd.auth.Account
 import com.arml.realmd.networking.ClientHandler
+import com.arml.realmd.realmlist.RealmCharacters
+import com.arml.realmd.realmlist.RealmList
 import com.xenomachina.argparser.ArgParser
-import org.apache.logging.log4j.LogManager
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.transactions.transaction
 import java.net.InetAddress
 import java.net.SocketException
 import java.util.concurrent.ExecutorService
@@ -22,7 +26,10 @@ fun main(args: Array<String>) {
       password = config.dbPass
     )
 
-  DbOps.initializeSchema(db)
+  transaction(db) {
+    SchemaUtils.create(Account, RealmList, RealmCharacters)
+  }
+
   startListening(config)
 }
 

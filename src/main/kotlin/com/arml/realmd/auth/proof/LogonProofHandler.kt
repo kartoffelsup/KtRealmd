@@ -20,7 +20,7 @@ import kotlin.experimental.xor
 
 class LogonProofHandler(
   private val accountDb: AccountDb
-  ) : CommandHandler {
+) : CommandHandler {
   override fun handle(input: ByteArray, clientHandler: IClientHandler): ByteArray? {
     val proofParamsOpt = LogonProofParser.parse(input)
     return proofParamsOpt?.let { proofParams ->

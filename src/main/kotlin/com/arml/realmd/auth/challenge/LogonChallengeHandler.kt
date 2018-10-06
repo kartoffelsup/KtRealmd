@@ -19,7 +19,6 @@ class LogonChallengeHandler(
   private val srp6Function: (AccountDto) -> Srp6Values = SecureRemotePasswordProtocol::calculateSrp6
 ) : CommandHandler {
   override fun handle(input: ByteArray, clientHandler: IClientHandler): ByteArray? {
-    println("LogonChallenge: handle")
     val unknownPart = BigInteger(16 * 8, ThreadLocalRandom.current()).toReversedByteArray(16)
 
     val authLogonParams: LogonChallengeParams? = LogonChallengeParser.parse(input)
@@ -39,7 +38,6 @@ class LogonChallengeHandler(
         }
 
         val byteArrayOutputStream = ByteArrayOutputStream()
-        println("LogonChallenge: reply")
         return byteArrayOutputStream.apply {
           write(Command.AUTH_LOGON_CHALLENGE.value.toInt())
           write(0)

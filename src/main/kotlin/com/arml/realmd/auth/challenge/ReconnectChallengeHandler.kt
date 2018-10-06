@@ -13,7 +13,7 @@ class ReconnectChallengeHandler(
   private val accountDb: AccountDb
 ) : CommandHandler {
   override fun handle(input: ByteArray, clientHandler: IClientHandler): ByteArray? {
-    return LogonChallengeParser.parse(input)?.let { authLogonParams ->
+    return LogonChallengeParser.parseForReconnect(input)?.let { authLogonParams ->
       val sessionKey = accountDb.findSessionKey(authLogonParams.username)
       val reconnectProof = BigInteger(16 * 8, ThreadLocalRandom.current())
 
@@ -23,7 +23,7 @@ class ReconnectChallengeHandler(
         this.reconnectProof = reconnectProof
       }
 
-      return ByteBuffer.allocate(32).apply {
+      return ByteBuffer.allocate(34).apply {
         put(Command.AUTH_RECONNECT_CHALLENGE.value)
         put(0)
         put(reconnectProof.toReversedByteArray())

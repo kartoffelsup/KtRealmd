@@ -8,8 +8,16 @@ import com.arml.realmd.util.toUtf8
 
 object LogonChallengeParser {
   fun parse(input: ByteArray): LogonChallengeParams? {
+    return parse(input, Command.AUTH_LOGON_CHALLENGE)
+  }
+
+  fun parseForReconnect(input: ByteArray): LogonChallengeParams? {
+    return parse(input, Command.AUTH_RECONNECT_CHALLENGE)
+  }
+
+  private fun parse(input: ByteArray, forCmd: Command): LogonChallengeParams? {
     val cmd = input[0]
-    val command: Command? = findCmd(cmd)?.takeIf { it == Command.AUTH_LOGON_CHALLENGE }
+    val command: Command? = findCmd(cmd)?.takeIf { it == forCmd }
 
     return command?.let {
       val err = input[1]

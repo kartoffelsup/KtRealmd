@@ -3,7 +3,6 @@ package com.arml.realmd.auth.proof
 import com.arml.realmd.Command
 import com.arml.realmd.findCmd
 import com.arml.realmd.util.positiveBigInteger
-import com.arml.realmd.util.toHexadecimalString
 
 object LogonProofParser {
   fun parse(input: ByteArray): LogonProofParams? {

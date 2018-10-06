@@ -3,10 +3,12 @@ package com.arml.realmd.networking
 import com.arml.realmd.Command
 import com.arml.realmd.CommandHandler
 import com.arml.realmd.auth.AccountDbOps
+import com.arml.realmd.auth.AuthResult
 import com.arml.realmd.auth.Srp6Values
 import com.arml.realmd.auth.challenge.LogonChallengeHandler
 import com.arml.realmd.auth.challenge.ReconnectChallengeHandler
 import com.arml.realmd.auth.proof.LogonProofHandler
+import com.arml.realmd.auth.proof.ReconnectProofHandler
 import com.arml.realmd.findCmd
 import com.arml.realmd.realmlist.RealmListDbOps
 import com.arml.realmd.realmlist.RealmListHandler
@@ -56,9 +58,14 @@ class ClientHandler(
         val command = findCmd(cmd)
         println("Received cmd: $command payload: ${received.contentToString()} from $client")
         val handler: CommandHandler? = command?.let(::handler)
-        val response = handler?.handle(received, this)
-        println("Sending ${response?.contentToString()}")
-        response?.let(::sendMessage)
+        val response = handler?.handle(received, this) ?: byteArrayOf(
+          cmd,
+          AuthResult.WOW_FAIL_UNKNOWN_ACCOUNT.value,
+          3,
+          0
+        )
+        println("Sending ${response.contentToString()}")
+        sendMessage(response)
       }
 
       client.close()
@@ -78,6 +85,7 @@ class ClientHandler(
     Command.AUTH_LOGON_PROOF -> LogonProofHandler(AccountDbOps)
     Command.REALM_LIST -> RealmListHandler(RealmListDbOps)
     Command.AUTH_RECONNECT_CHALLENGE -> ReconnectChallengeHandler(AccountDbOps)
+    Command.AUTH_RECONNECT_PROOF -> ReconnectProofHandler
     else -> null
   }
 

@@ -1,9 +1,8 @@
 import org.gradle.jvm.tasks.Jar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.jetbrains.kotlin.gradle.dsl.Coroutines
 
 plugins {
-  id("org.jetbrains.kotlin.jvm") version ("1.3.11")
+  id("org.jetbrains.kotlin.jvm").version("1.3.20")
 }
 
 group = "com.arml"

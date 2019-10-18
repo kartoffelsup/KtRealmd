@@ -47,19 +47,19 @@ tasks.withType<KotlinCompile> {
 }
 
 tasks {
-  register("bundle", Jar::class) {
+  register("bundle", org.gradle.api.tasks.bundling.Jar::class.java) {
     dependsOn("build")
     manifest {
       attributes["Main-Class"] = "com.arml.realmd.RealmdKt"
     }
-    baseName = "realmd"
+    archiveBaseName.set("realmd")
     from(
-      configurations.compile.map {
+      configurations.runtimeClasspath.get().map {
         if (it.isDirectory)
           it
         else zipTree(it)
       }
     )
-    with(tasks["jar"] as CopySpec)
+    with(getTasks()["jar"] as CopySpec)
   }
 }

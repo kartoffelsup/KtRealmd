@@ -1,11 +1,26 @@
+import io.github.kartoffelsup.querydsl.sql.codegen.GenerateQueryDslSqlSources
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import io.github.kartoffelsup.querydsl.sql.codegen.QueryDslSqlCodeGen
+
+buildscript {
+    repositories {
+        mavenLocal()
+    }
+
+    dependencies {
+        classpath("io.github.kartoffelsup:querydsl-sql-codegen-gradle-plugin:0.0.1")
+    }
+}
 
 plugins {
     id("org.jetbrains.kotlin.jvm").version("1.3.50")
+    id("idea")
 }
 
 group = "com.arml"
 version = "0.0.1-SNAPSHOT"
+
+apply<QueryDslSqlCodeGen>()
 
 repositories {
     mavenLocal()
@@ -15,40 +30,77 @@ repositories {
     }
 }
 
-val exposedVersion: String by extra
 val mariaDbVersion: String by extra
+val hikariVersion: String by extra
 val guavaVersion: String by extra
+val queryDslVersion: String by extra
 val argParserVersion: String by extra
 val log4jVersion: String by extra
 
 val jUnitVersion: String by extra
 val assertJVersion: String by extra
+val mockKVersion: String by extra
 
 dependencies {
-    compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    compile("org.jetbrains.kotlin:kotlin-reflect")
-    compile("org.jetbrains.exposed:exposed:$exposedVersion")
-    compile("org.mariadb.jdbc:mariadb-java-client:$mariaDbVersion")
-    compile("com.google.guava:guava:$guavaVersion")
-    compile("com.xenomachina:kotlin-argparser:$argParserVersion")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("com.querydsl:querydsl-sql:$queryDslVersion")
+    implementation("org.mariadb.jdbc:mariadb-java-client:$mariaDbVersion")
+    implementation("com.zaxxer:HikariCP:$hikariVersion")
+    implementation("com.google.guava:guava:$guavaVersion")
+    implementation("com.xenomachina:kotlin-argparser:$argParserVersion")
 
-    compile("org.apache.logging.log4j:log4j-api:$log4jVersion")
-    compile("org.apache.logging.log4j:log4j-core:$log4jVersion")
+
+    implementation("org.apache.logging.log4j:log4j-api:$log4jVersion")
+    implementation("org.apache.logging.log4j:log4j-core:$log4jVersion")
     runtime("org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion")
 
-    testCompile("junit:junit:$jUnitVersion")
-    testCompile("org.assertj:assertj-core:$assertJVersion")
+    testImplementation("junit:junit:$jUnitVersion")
+    testImplementation("org.assertj:assertj-core:$assertJVersion")
+    testImplementation("io.mockk:mockk:$mockKVersion")
 }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
+val generatedSourcesPath = file("src/generated/kotlin")
+
+sourceSets.main {
+    java {
+        srcDir(generatedSourcesPath)
+    }
+}
+
+idea {
+    module {
+        generatedSourceDirs.add(generatedSourcesPath)
+    }
 }
 
 tasks {
+    withType<KotlinCompile> {
+        kotlinOptions.jvmTarget = "1.8"
+    }
+
+    register("generateQueryDslSqlSources", GenerateQueryDslSqlSources::class) {
+        target = generatedSourcesPath
+        packageName = "io.github.kartoffelsup.realmd.sql"
+        beanPackageName = "io.github.kartoffelsup.realmd.bean"
+        beanNameSuffix = "Bean"
+        schema = "realmd"
+        jdbcUrl = System.getProperty("jdbcUrl", "jdbc:mariadb://localhost")
+        username = System.getProperty("username", "realmd")
+        password = System.getProperty("password", "realmd")
+        driverClassName = "org.mariadb.jdbc.Driver"
+    }
+
+    register("cleanGeneratedSources") {
+        dependsOn("clean")
+
+        generatedSourcesPath.absoluteFile.deleteRecursively()
+    }
+
     register("bundle", org.gradle.api.tasks.bundling.Jar::class.java) {
         dependsOn("build")
         manifest {
-            attributes["Main-Class"] = "com.arml.realmd.RealmdKt"
+            attributes["Main-Class"] = "io.github.kartoffelsup.realmd.RealmdKt"
         }
         archiveBaseName.set("realmd")
         from(

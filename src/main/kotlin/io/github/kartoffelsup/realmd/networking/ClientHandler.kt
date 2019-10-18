@@ -39,7 +39,6 @@ class ClientHandler(
     private fun sendMessage(payload: ByteArray) {
         ensureConnected()
 
-        println("About to send ${payload.size} bytes")
         val clientOutputStream = client.getOutputStream()
         clientOutputStream.write(payload, 0, payload.size)
         clientOutputStream.flush()
@@ -58,7 +57,7 @@ class ClientHandler(
                 val received = bytes.sliceArray(0..receivedBytes)
                 val cmd = received[0]
                 val command = findCmd(cmd)
-                println("Received cmd: $command payload: ${received.contentToString()} from $client")
+                println("Received cmd: '$command' from '$this'")
                 val handler: CommandHandler? = command?.let(::handler)
                 val response = handler?.handle(received, this) ?: byteArrayOf(
                     cmd,
@@ -66,7 +65,6 @@ class ClientHandler(
                     3,
                     0
                 )
-                println("Sending ${response.contentToString()}")
                 sendMessage(response)
             }
 

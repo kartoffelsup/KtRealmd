@@ -2,28 +2,29 @@ package io.github.kartoffelsup.realmd.realmlist
 
 import com.querydsl.sql.SQLQueryFactory
 import io.github.kartoffelsup.realmd.bean.RealmlistBean
-import io.github.kartoffelsup.realmd.sql.QAccount
-import io.github.kartoffelsup.realmd.sql.QRealmcharacters
-import io.github.kartoffelsup.realmd.sql.QRealmlist
+import io.github.kartoffelsup.realmd.sql.QAccount.Companion.account
+import io.github.kartoffelsup.realmd.sql.QRealmcharacters.Companion.realmcharacters
+import io.github.kartoffelsup.realmd.sql.QRealmlist.Companion.realmlist
 
 object RealmListDbOps : RealmListDb {
-    override fun SQLQueryFactory.findNumChars(login: String): List<Pair<RealmlistBean, Int?>> {
-        return select(QRealmlist.realmlist, QRealmcharacters.realmcharacters.numchars)
-            .from(QRealmlist.realmlist)
-            .innerJoin(QAccount.account)
-            .on(QAccount.account.username.eq(login))
-            .leftJoin(QRealmcharacters.realmcharacters)
+    override fun SQLQueryFactory.findNumChars(login: String): List<Pair<RealmlistBean, Int?>> =
+        select(realmlist, realmcharacters.numchars)
+            .from(realmlist)
+            .innerJoin(account)
+            .on(account.username.eq(login))
+            .leftJoin(realmcharacters)
             .on(
-                QRealmcharacters.realmcharacters.acctid.castToNum(Int::class.java).eq(QAccount.account.id)
-                    .and(QRealmlist.realmlist.id.eq(QRealmcharacters.realmcharacters.realmid))
+                realmcharacters.acctid.eq(account.id).and(
+                    realmlist.id.eq(realmcharacters.realmid)
+                )
             )
             .distinct()
             .fetch()
             .mapNotNull { tuple ->
-                val realmList = tuple.get(QRealmlist.realmlist)
+                val realmList = tuple.get(realmlist)
                 realmList?.let {
-                    it to tuple.get(QRealmcharacters.realmcharacters.numchars)?.toInt()
+                    it to tuple.get(realmcharacters.numchars)?.toInt()
                 }
             }
-    }
+
 }

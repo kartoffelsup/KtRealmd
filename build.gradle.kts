@@ -1,3 +1,4 @@
+import com.querydsl.sql.types.IntegerType
 import io.github.kartoffelsup.querydsl.sql.codegen.GenerateQueryDslSqlSources
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import io.github.kartoffelsup.querydsl.sql.codegen.QueryDslSqlCodeGen
@@ -34,7 +35,7 @@ val mariaDbVersion: String by extra
 val hikariVersion: String by extra
 val guavaVersion: String by extra
 val queryDslVersion: String by extra
-val argParserVersion: String by extra
+val hopliteVersion: String by extra
 val log4jVersion: String by extra
 
 val jUnitVersion: String by extra
@@ -48,8 +49,8 @@ dependencies {
     implementation("org.mariadb.jdbc:mariadb-java-client:$mariaDbVersion")
     implementation("com.zaxxer:HikariCP:$hikariVersion")
     implementation("com.google.guava:guava:$guavaVersion")
-    implementation("com.xenomachina:kotlin-argparser:$argParserVersion")
-
+    implementation("com.sksamuel.hoplite:hoplite-core:$hopliteVersion")
+    implementation("com.sksamuel.hoplite:hoplite-json:$hopliteVersion")
 
     implementation("org.apache.logging.log4j:log4j-api:$log4jVersion")
     implementation("org.apache.logging.log4j:log4j-core:$log4jVersion")
@@ -76,6 +77,7 @@ idea {
 
 tasks {
     withType<KotlinCompile> {
+        dependsOn("generateQueryDslSqlSources")
         kotlinOptions.jvmTarget = "1.8"
     }
 
@@ -89,12 +91,15 @@ tasks {
         username = System.getProperty("username", "realmd")
         password = System.getProperty("password", "realmd")
         driverClassName = "org.mariadb.jdbc.Driver"
+        configurationCustomizer = {
+            register("realmcharacters", "acctid", IntegerType())
+        }
     }
 
-    register("cleanGeneratedSources") {
-        dependsOn("clean")
-
-        generatedSourcesPath.absoluteFile.deleteRecursively()
+    getByName("clean") {
+        doLast {
+            delete(generatedSourcesPath.absoluteFile)
+        }
     }
 
     register("bundle", org.gradle.api.tasks.bundling.Jar::class.java) {

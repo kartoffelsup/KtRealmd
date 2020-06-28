@@ -12,7 +12,7 @@ import io.github.kartoffelsup.realmd.sql.QAccount
 import io.github.kartoffelsup.realmd.util.toHexadecimalString
 import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import java.math.BigInteger
 
 val b = BigInteger("4256674378144676270607276026758948068047056529")

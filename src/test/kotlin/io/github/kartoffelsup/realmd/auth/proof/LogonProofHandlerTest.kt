@@ -14,7 +14,7 @@ import io.github.kartoffelsup.realmd.util.toHexadecimalString
 import io.github.kartoffelsup.realmd.util.toReversedByteArray
 import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import java.math.BigInteger
 import java.nio.ByteBuffer
 import java.util.concurrent.ThreadLocalRandom

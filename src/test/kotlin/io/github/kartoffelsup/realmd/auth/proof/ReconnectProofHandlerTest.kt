@@ -5,7 +5,7 @@ import io.github.kartoffelsup.realmd.auth.AuthResult
 import io.github.kartoffelsup.realmd.auth.Srp6Values
 import io.github.kartoffelsup.realmd.networking.IClientHandler
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import java.math.BigInteger
 
 class ReconnectProofHandlerTest {

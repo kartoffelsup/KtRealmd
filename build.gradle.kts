@@ -1,7 +1,5 @@
-import com.querydsl.sql.types.IntegerType
-import io.github.kartoffelsup.querydsl.sql.codegen.GenerateQueryDslSqlSources
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import io.github.kartoffelsup.querydsl.sql.codegen.QueryDslSqlCodeGen
+import org.mariadb.jdbc.MariaDbDataSource
 
 buildscript {
     repositories {
@@ -9,26 +7,32 @@ buildscript {
     }
 
     dependencies {
-        classpath("io.github.kartoffelsup:querydsl-sql-codegen-gradle-plugin:0.0.1")
+        val queryDslVersion: String by rootProject.extra
+        val mariaDbVersion: String by rootProject.extra
+
+        classpath("io.github.kartoffelsup:querydsl-sql-codegen-gradle-plugin:0.0.3-SNAPSHOT") {
+            exclude("com.querydsl", "querydsl-sql-codegen")
+        }
+        classpath("com.querydsl:querydsl-sql-codegen:$queryDslVersion")
+        classpath("org.mariadb.jdbc:mariadb-java-client:$mariaDbVersion")
     }
 }
 
 plugins {
-    id("org.jetbrains.kotlin.jvm").version("1.3.50")
+    id("org.jetbrains.kotlin.jvm").version("1.3.72")
     id("idea")
 }
 
-group = "com.arml"
+group = "io.github.kartoffelsup"
 version = "0.0.1-SNAPSHOT"
 
-apply<QueryDslSqlCodeGen>()
+apply {
+    plugin("io.github.kartoffelsup.querydsl.sql.codegen")
+}
 
 repositories {
     mavenLocal()
     mavenCentral()
-    maven {
-        url = uri("https://dl.bintray.com/kotlin/exposed")
-    }
 }
 
 val mariaDbVersion: String by extra
@@ -37,6 +41,7 @@ val guavaVersion: String by extra
 val queryDslVersion: String by extra
 val hopliteVersion: String by extra
 val log4jVersion: String by extra
+val javaxAnnotationApiVersion: String by extra
 
 val jUnitVersion: String by extra
 val assertJVersion: String by extra
@@ -51,12 +56,13 @@ dependencies {
     implementation("com.google.guava:guava:$guavaVersion")
     implementation("com.sksamuel.hoplite:hoplite-core:$hopliteVersion")
     implementation("com.sksamuel.hoplite:hoplite-json:$hopliteVersion")
+    implementation("javax.annotation:javax.annotation-api:$javaxAnnotationApiVersion")
 
     implementation("org.apache.logging.log4j:log4j-api:$log4jVersion")
-    implementation("org.apache.logging.log4j:log4j-core:$log4jVersion")
-    runtime("org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion")
+    runtimeOnly("org.apache.logging.log4j:log4j-core:$log4jVersion")
+    runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion")
 
-    testImplementation("junit:junit:$jUnitVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter:$jUnitVersion")
     testImplementation("org.assertj:assertj-core:$assertJVersion")
     testImplementation("io.mockk:mockk:$mockKVersion")
 }
@@ -81,19 +87,30 @@ tasks {
         kotlinOptions.jvmTarget = "1.8"
     }
 
-    register("generateQueryDslSqlSources", GenerateQueryDslSqlSources::class) {
-        target = generatedSourcesPath
-        packageName = "io.github.kartoffelsup.realmd.sql"
-        beanPackageName = "io.github.kartoffelsup.realmd.bean"
-        beanNameSuffix = "Bean"
-        schema = "realmd"
-        jdbcUrl = System.getProperty("jdbcUrl", "jdbc:mariadb://localhost")
-        username = System.getProperty("username", "realmd")
-        password = System.getProperty("password", "realmd")
-        driverClassName = "org.mariadb.jdbc.Driver"
-        configurationCustomizer = {
-            register("realmcharacters", "acctid", IntegerType())
-        }
+    test {
+        useJUnitPlatform()
+    }
+
+    withType<io.github.kartoffelsup.querydsl.sql.codegen.GenerateQueryDslSqlSources> {
+        val user = System.getProperty("db-user")
+        val password = System.getProperty("db-pw")
+        val host = System.getProperty("db-host")
+        val ds: javax.sql.DataSource =
+            MariaDbDataSource(host, 3306, "realmd").apply {
+                this.user = user
+                setPassword(password)
+            }
+
+        val file = file(generatedSourcesPath)
+        target.set(file)
+        packageName.set("io.github.kartoffelsup.realmd.sql")
+        beanPackageName.set("io.github.kartoffelsup.realmd.bean")
+        schema.set("realmd")
+        dataSource.set(ds)
+        configuration.set(com.querydsl.sql.Configuration(com.querydsl.sql.MySQLTemplates()).apply {
+            register("realmcharacters", "acctid", com.querydsl.sql.types.IntegerType())
+        })
+        customizer.set { setBeanSuffix("Bean") }
     }
 
     getByName("clean") {

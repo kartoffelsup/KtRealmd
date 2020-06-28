@@ -14,9 +14,9 @@ class RealmListHandler(
     private val realmListDb: RealmListDb,
     private val sqlQueryFactory: SQLQueryFactory
 ) : CommandHandler {
-  override fun handle(input: ByteArray, clientHandler: IClientHandler): ByteArray? {
+  override fun handle(input: ByteArray, clientHandler: IClientHandler): ByteArray? = realmListDb.run {
     val realmToNumChars: List<Pair<RealmlistBean, Int?>> =
-      clientHandler.login?.let { realmListDb.run { sqlQueryFactory.findNumChars(it) } } ?: listOf()
+      clientHandler.login?.let { sqlQueryFactory.findNumChars(it) } ?: listOf()
     val realmList = buildRealmList(realmToNumChars)
     val responseBuffer = ByteBuffer.allocate(3 + realmList.size)
       .apply {
@@ -24,7 +24,7 @@ class RealmListHandler(
         put(Shorts.toByteArray(realmList.size.toShort()).reversedArray())
         put(realmList)
       }
-    return responseBuffer.array()
+    responseBuffer.array()
   }
 
   private fun buildRealmList(realmToNumChars: List<Pair<RealmlistBean, Int?>>): ByteArray {

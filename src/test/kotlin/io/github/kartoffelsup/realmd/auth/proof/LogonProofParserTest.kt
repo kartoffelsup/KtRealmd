@@ -2,7 +2,7 @@ package io.github.kartoffelsup.realmd.auth.proof
 
 import io.github.kartoffelsup.realmd.Command
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import java.math.BigInteger
 
 class LogonProofParserTest {

@@ -3,7 +3,7 @@ package io.github.kartoffelsup.realmd.auth.challenge
 import io.github.kartoffelsup.realmd.Command
 import io.github.kartoffelsup.realmd.util.toReversedByteArray
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import java.math.BigInteger
 
 class LogonChallengeParserTest {

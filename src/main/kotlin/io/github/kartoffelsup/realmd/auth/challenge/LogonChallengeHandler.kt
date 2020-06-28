@@ -33,8 +33,8 @@ class LogonChallengeHandler(
         clientHandler.srp6Values = srp6Values
         clientHandler.login = params.username
 
-        val vToStore = srp6.v.toHexadecimalString()
         val sToStore = srp6.s.toHexadecimalString()
+        val vToStore = srp6.v.toHexadecimalString()
 
         accountDb.run {
           sqlQueryFactory.update(params.username) {

@@ -3,7 +3,7 @@ package io.github.kartoffelsup.realmd.auth
 import io.github.kartoffelsup.realmd.bean.AccountBean
 import io.github.kartoffelsup.realmd.util.toHexadecimalString
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import java.math.BigInteger
 import java.sql.Timestamp
 import java.time.Instant

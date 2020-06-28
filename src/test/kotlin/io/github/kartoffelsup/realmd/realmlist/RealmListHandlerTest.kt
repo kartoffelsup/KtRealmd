@@ -7,7 +7,7 @@ import io.github.kartoffelsup.realmd.bean.RealmlistBean
 import io.github.kartoffelsup.realmd.networking.IClientHandler
 import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import java.math.BigInteger
 
 val expectedResponse = byteArrayOf(
